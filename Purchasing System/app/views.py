@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 
 def home(request):
     """Renders the home page."""
+
     assert isinstance(request, HttpRequest)
     return render(
         request,
