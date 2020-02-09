@@ -77,6 +77,7 @@ def requestforquotationconfirmation(request):
     vendor_id = request.POST['vendor_id']
     description = request.POST['description']
     staff_info = Person.objects.get(user_id = staff_id)
+    print(staff_info.person_id)
     responses = request.read()
     print(responses)
    
@@ -113,16 +114,15 @@ def requestforquotationconfirmation(request):
         i = i + 1
         grand_total = grand_total + total
     print(items)
-
+    
     try:
         vendor_info = Vendor.objects.get(vendor_id = vendor_id)
-
-
+        items = PurchaseRequisitionItem.objects.filter(pr_id = purchase_requisition_id)
         context = {
                 'title': 'Request For Quotation Confirmation',
                 'purchase_requisition_id' : purchase_requisition_id,
                 'request_for_quotation_id' : rfq_id,
-                'staff_id' : staff_id,
+                'staff_id' : staff_info.person_id,
                 'vendor_id' : vendor_id,
                 'grand_total': grand_total,
                 'rows' : items,
@@ -131,14 +131,16 @@ def requestforquotationconfirmation(request):
                 'description' : description
             }
 
-
         return render(request,'RequestForQuotation/requestforquotationconfirmation.html',context)
     except Vendor.DoesNotExist:
+
+        items = PurchaseRequisitionItem.objects.filter(pr_id = purchase_requisition_id)
+
         context = { 'error': 'Please insert valid vendor ID!',
                     'title': 'Request Of Quotation Form',
                     'purchase_requisition_id' : purchase_requisition_id,
                     'request_for_quotation_id' : rfq_id,
-                    'staff_id' : staff_id,
+                    'staff_id' : staff_info.person_id,
                     'grand_total': grand_total,
                     'rows' : items,
                     'staff_info' : staff_info,
