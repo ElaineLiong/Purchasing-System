@@ -20,16 +20,16 @@
         {% csrf_token %}
         <div class="row margintop">
             <div class="col">
-                <input type="text" class="form-control" name="delivery_order_id" value="{{delivery_order_id}}" placeholder="delivery Order ID">
+                <input type="text" class="form-control" name="delivery_order_id" value="{{delivery_order_id}}" placeholder="delivery Order ID" required>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="purchase_order_id" placeholder="Purchase_Order_ID">{{purchase_order_id}}</textarea>
+                <textarea type="text" class="poform-control" name="purchase_order_id" placeholder="Purchase_Order_ID" required>{{purchase_order_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID">{{staff_id}}</textarea>
+                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID" required>{{staff_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="vendor_id" placeholder="Vendor ID">{{vendor_id}}</textarea>
+                <textarea type="text" class="poform-control" name="vendor_id" placeholder="Vendor ID" required>{{vendor_id}}</textarea>
             </div>
         </div>
 
