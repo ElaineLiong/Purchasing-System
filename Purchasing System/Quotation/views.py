@@ -43,11 +43,17 @@ def fillingquotation(request):
     user_id  = request.user.id
     staff = Person.objects.get(user_id = user_id)
     
-   # if Quotation.objects.get(request_for_quotation_id = re_of_quo_id) is not None:
-   #     context = { 'error': 'Quotation for this request already exists !',
-   #                 'title': 'Quotation Form'
-   #         }
-   #     return render(request,'Quotation/quotationform.html',context)   
+    if Quotation.objects.get(request_for_quotation_id = re_of_quo_id) is not None:
+        context = { 'error': 'Quotation for this request already exists !',
+                    'title': 'Quotation Form'
+            }
+        return render(request,'Quotation/quotationform.html',context) 
+
+    if Quotation.objects.get(quo_id = quo_id) is not None:
+        context = { 'error': 'Quotation for this request already exists !',
+                    'title': 'Quotation Form'
+            }
+        return render(request,'Quotation/quotationform.html',context) 
 
     try: 
         request_for_quotations = RequestForQuotation.objects.get(request_for_quotation_id = re_of_quo_id)
@@ -69,6 +75,12 @@ def fillingquotation(request):
             }
         return render(request,'Quotation/quotationform.html',context)
 
+  #  except Quotation.DoesNotExist:
+  #      context = {'error': 'The quotation id is invalid !',
+  #                 'title': 'Quotation Form'
+  #          }
+  #      return render(request,'Quotation/quotationform.html',context)
+    
 
 def quotationconfirmation(request):
 
