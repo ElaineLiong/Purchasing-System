@@ -117,7 +117,7 @@ def requestforquotationconfirmation(request):
     
     try:
         vendor_info = Vendor.objects.get(vendor_id = vendor_id)
-        
+        items = PurchaseRequisitionItem.objects.filter(pr_id = purchase_requisition_id)
         context = {
                 'title': 'Request For Quotation Confirmation',
                 'purchase_requisition_id' : purchase_requisition_id,
