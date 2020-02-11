@@ -20,16 +20,16 @@
         {% csrf_token %}
         <div class="row margintop">
             <div class="col">
-                <input type="text" class="form-control" name="quotation_id" value="{{quotation_id}}" placeholder="Quotation ID">
+                <input type="text" class="form-control" name="quotation_id" value="{{quotation_id}}" placeholder="Quotation ID" readonly>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="request_for_quotation_id" placeholder="Request For Quotation ID">{{request_for_quotation_id}}</textarea>
+                <textarea type="text" class="poform-control" name="request_for_quotation_id" placeholder="Request For Quotation ID" readonly>{{request_for_quotation_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID">{{staff_id}}</textarea>
+                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID" readonly>{{staff_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="vendor_id" placeholder="Vendor ID">{{vendor_id}}</textarea>
+                <textarea type="text" class="poform-control" name="vendor_id" placeholder="Vendor ID" readonly>{{vendor_id}}</textarea>
             </div>
         </div>
 
@@ -54,7 +54,7 @@
                 {% for r in rows %}
                 <tr>
                     <td><input type="text" class="form-control" name="item_id" value="{{r.item_id}}" readonly> </td>
-                    <td><input type="text" class="form-control" name="ref_id" placeholder = "Reference ID"> </td>
+                    <td><input type="text" class="form-control" name="ref_id" value="{{r.quotation_quotationitem.item_id.ref_id}}" placeholder = "Reference ID"> </td>
                     <td><input type="text" class="form-control" name="item_name" value="{{r.item_id.item_name}}" readonly></td>
                     <td><input type="text" class="form-control" name="quantity" value="{{r.quantity}}" placeholder="Quantity Item" readonly></td>
                     <td><input type="text" class="form-control" name="unit_price" value="{{r.unit_price}}"></td>
