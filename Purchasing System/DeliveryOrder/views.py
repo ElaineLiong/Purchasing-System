@@ -67,70 +67,83 @@ def deliveryorderconfirmation(request):
     context = {}
     do_id = request.POST['delivery_order_id']
     po_id = request.POST['purchase_order_id']
-
-    user_id = request.user.id
-    staff = Person.objects.get(user_id=user_id)
-    
     vendor_id = request.POST['vendor_id']
     shipping_inst = request.POST['shipping_inst']
     description = request.POST['description']
-
+    
+    user_id = request.user.id
+    staff = Person.objects.get(user_id=user_id)
     vendor_info = Vendor.objects.get(vendor_id = vendor_id)
-    
-    responses = request.read()
-    print(responses)
+
+    doCount = DeliveryOrder.objects.filter(delivery_order_id = do_id)
+    if doCount.count() == 0:
+
+        responses = request.read()
+        print(responses)
    
-    q= QueryDict(responses)
+        q= QueryDict(responses)
     
-    items_id = q.getlist('item_id')
-    print(items_id)
-    items_name = q.getlist('item_name')
-    print(items_name)
-    items_quantity = q.getlist('quantity')
-    print(items_quantity)
-    items_unit_price = q.getlist('unit_price')
-    print(items_unit_price)
-    items_total_price = q.getlist('total_price')
-    print(items_total_price)
+        items_id = q.getlist('item_id')
+        print(items_id)
+        items_name = q.getlist('item_name')
+        print(items_name)
+        items_quantity = q.getlist('quantity')
+        print(items_quantity)
+        items_unit_price = q.getlist('unit_price')
+        print(items_unit_price)
+        items_total_price = q.getlist('total_price')
+        print(items_total_price)
 
 
-    items = list()
+        items = list()
 
-    i = 0
-    items_length = len(items_id)
-    grand_total = Decimal(0)
+        i = 0
+        items_length = len(items_id)
+        grand_total = Decimal(0)
 
-    while i < items_length:
-        total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
-        item_table = {
-            'item_name': items_name[i],
-            'item_id': items_id[i],
-            'quantity' : items_quantity[i],
-            'unit_price': items_unit_price[i],
-            'total_price': total
-        }
-        items.append(item_table)
-        i = i + 1
-        grand_total = grand_total + total
-    print(items)
+        while i < items_length:
+            total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
+            item_table = {
+                'item_name': items_name[i],
+                'item_id': items_id[i],
+                'quantity' : items_quantity[i],
+                'unit_price': items_unit_price[i],
+                'total_price': total
+            }
+            items.append(item_table)
+            i = i + 1
+            grand_total = grand_total + total
+        print(items)
        
 
-    context = {
-            'title': 'Delivery Order Confirmation',
-            'purchase_order_id' : po_id,
-            'delivery_order_id' : do_id,
-            'staff_id' : staff.person_id,
-            'vendor_id' : vendor_id,
-            'shipping_inst' : shipping_inst,
-            'grand_total': grand_total,
-            'rows' : items,
-            'staff_info' : staff,
-            'vendor_info' : vendor_info,
-            'description' : description,
-            'year':'2019/2020'
-        }
+        context = {
+                'title': 'Delivery Order Confirmation',
+                'purchase_order_id' : po_id,
+                'delivery_order_id' : do_id,
+                'staff_id' : staff.person_id,
+                'vendor_id' : vendor_id,
+                'shipping_inst' : shipping_inst,
+                'grand_total': grand_total,
+                'rows' : items,
+                'staff_info' : staff,
+                'vendor_info' : vendor_info,
+                'description' : description,
+                'year':'2019/2020'
+            }
 
-    return render(request,'DeliveryOrder/deliveryorderconfirmation.html',context)
+        return render(request,'DeliveryOrder/deliveryorderconfirmation.html',context)
+    else:
+        context = {
+                'error': 'The Delivery Order ID '+do_id+' already exist!',
+                'title': 'Delivery Order Form',
+                'delivery_order_id': do_id,
+                'purchase_order_id': po_id, 
+                'staff_id' : staff.person_id,
+                'vendor_id': vendor_id,
+            }
+
+        return render(request,'DeliveryOrder/deliveryorderform.html',context)
+        
 
  
 def deliveryorderdetails(request):
