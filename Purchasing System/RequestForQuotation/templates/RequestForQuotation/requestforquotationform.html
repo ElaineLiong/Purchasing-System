@@ -6,7 +6,7 @@
 
         <div class="input-group mb-3">
           <input type="text" class="form-control" name="pr_id" placeholder="Purchase Requisition ID" aria-label="Purchase Requisition ID"
-            aria-describedby="button-addon2">
+            aria-describedby="button-addon2" required>
           <div class="input-group-append">
            <button type="submit" class="btn btn-outline-info btn-hover btn-rounded waves-effect">Find</button>
           </div>
@@ -20,13 +20,13 @@
         {% csrf_token %}
         <div class="row margintop">
             <div class="col">
-                <input type="text" class="form-control" name="request_for_quotation_id" value="{{request_for_quotation_id}}" placeholder="Request For Quotation ID">
+                <input type="text" class="form-control" name="request_for_quotation_id" value="{{request_for_quotation_id}}" placeholder="Request For Quotation ID" readonly>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="purchase_requisition_id" placeholder="Purchase Requisition ID">{{purchase_requisition_id}}</textarea>
+                <textarea type="text" class="poform-control" name="purchase_requisition_id" placeholder="Purchase Requisition ID" readonly>{{purchase_requisition_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID">{{staff_id}}</textarea>
+                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID" readonly>{{staff_id}}</textarea>
             </div>
             <div class="col">
                 <input type="text" class="form-control" name="vendor_id" placeholder="Vendor ID">

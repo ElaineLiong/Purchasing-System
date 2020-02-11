@@ -64,13 +64,12 @@ def fillingquotation(request):
             }
         return render(request,'Quotation/quotationform.html',context)
 
+    if Quotation.objects.filter(request_for_quotation_id = re_of_quo_id) is not None:
+        context = { 'error': 'Quotation for this request already exists !',
+                   'title': 'Quotation Form'
+           }
+        return render(request,'Quotation/quotationform.html',context) 
 
-#    if Quotation.objects.get(request_for_quotation_id = re_of_quo_id) is not None:
-#        context = { 'error': 'Quotation for this request already exists !',
-#                   'title': 'Quotation Form'
-#           }
-
-#        return render(request,'Quotation/quotationform.html',context) 
 
 
 def quotationconfirmation(request):
