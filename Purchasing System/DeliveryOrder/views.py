@@ -5,6 +5,7 @@ from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
+from django.db import IntegrityError
 from django.http import HttpRequest, HttpResponseRedirect
 from django.template import RequestContext
 from django.db import models
@@ -79,59 +80,104 @@ def deliveryorderconfirmation(request):
     if doCount.count() == 0:
 
         responses = request.read()
-        print(responses)
+        #print(responses)
    
         q= QueryDict(responses)
     
         items_id = q.getlist('item_id')
-        print(items_id)
+        #print(items_id)
         items_name = q.getlist('item_name')
-        print(items_name)
+        #print(items_name)
         items_quantity = q.getlist('quantity')
-        print(items_quantity)
+        #print(items_quantity)
         items_unit_price = q.getlist('unit_price')
-        print(items_unit_price)
+        #print(items_unit_price)
         items_total_price = q.getlist('total_price')
-        print(items_total_price)
-
-
+        #print(items_total_price)
+ 
         items = list()
-
+        itemCheckList = list()
         i = 0
         items_length = len(items_id)
         grand_total = Decimal(0)
 
+        quantityCheckRequired = False
         while i < items_length:
-            total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
-            item_table = {
-                'item_name': items_name[i],
-                'item_id': items_id[i],
-                'quantity' : items_quantity[i],
-                'unit_price': items_unit_price[i],
-                'total_price': total
-            }
-            items.append(item_table)
+            itemComplete = False
+
+            tempTotalQuantity = 0
+            tempOriginalItempQuantity = 0
+            for eachItem in DeliveryOrderItem.objects.filter(purchase_order_id = po_id).filter(item_id = items_id[i]):
+                tempTotalQuantity = tempTotalQuantity+eachItem.quantity
+                print(tempTotalQuantity)
+                tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po_id).get(item_id = items_id[i]).quantity
+                print(PurchaseOrderItem.objects.filter(purchase_order_id = po_id).get(item_id = items_id[i]).purchase_order_id)
+                if tempTotalQuantity+Decimal(items_quantity[i])>tempOriginalItempQuantity:
+                    items_quantity[i] = tempOriginalItempQuantity-tempTotalQuantity
+                    quantityCheckRequired = True
+                if tempTotalQuantity==tempOriginalItempQuantity:
+                    itemComplete = True
+
+            if quantityCheckRequired is True:
+                itemCheckList.append(items_id[i])
+            if itemComplete is False:
+                total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
+                item_table = {
+                    'item_name': items_name[i],
+                    'item_id': items_id[i],
+                    'quantity' : items_quantity[i],
+                    'unit_price': items_unit_price[i],
+                    'total_price': total
+                }
+                items.append(item_table)
+                grand_total = grand_total + total
             i = i + 1
-            grand_total = grand_total + total
-        print(items)
-       
+        #print(items)
 
-        context = {
-                'title': 'Delivery Order Confirmation',
-                'purchase_order_id' : po_id,
-                'delivery_order_id' : do_id,
+        if quantityCheckRequired is True:
+            #item_list = PurchaseOrderItem.objects.filter(purchase_order_id = po_id)
+            context = {
+
+                'error': 'Quantity for '+",".join(itemCheckList)+' is/are higher then actual the purchase order\'s item',
+                'title': 'Delivery Order Form',
+                'delivery_order_id': do_id,
+                'purchase_order_id': po_id, 
                 'staff_id' : staff.person_id,
-                'vendor_id' : vendor_id,
-                'shipping_inst' : shipping_inst,
-                'grand_total': grand_total,
-                'rows' : items,
-                'staff_info' : staff,
-                'vendor_info' : vendor_info,
-                'description' : description,
-                'year':'2019/2020'
+                'vendor_id': vendor_id,
+                'rows':items
             }
 
-        return render(request,'DeliveryOrder/deliveryorderconfirmation.html',context)
+            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+        elif len(items)<=0:
+            context = {
+
+                'error': 'All Items are already delivered for Purchase Order: '+po_id,
+                'title': 'Delivery Order Form',
+                'delivery_order_id': do_id,
+                'purchase_order_id': po_id, 
+                'staff_id' : staff.person_id,
+                'vendor_id': vendor_id,
+                'rows':items
+            }
+
+            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+        else:
+            context = {
+                    'title': 'Delivery Order Confirmation',
+                    'purchase_order_id' : po_id,
+                    'delivery_order_id' : do_id,
+                    'staff_id' : staff.person_id,
+                    'vendor_id' : vendor_id,
+                    'shipping_inst' : shipping_inst,
+                    'grand_total': grand_total,
+                    'rows' : items,
+                    'staff_info' : staff,
+                    'vendor_info' : vendor_info,
+                    'description' : description,
+                    'year':'2019/2020'
+                }
+
+            return render(request,'DeliveryOrder/deliveryorderconfirmation.html',context)
     else:
         context = {
                 'error': 'The Delivery Order ID '+do_id+' already exist!',
@@ -200,7 +246,7 @@ def deliveryorderdetails(request):
         # push the data to the database 
         current_time = datetime.datetime.now() 
         print(current_time)
-        do_info = DeliveryOrder(delivery_order_id = do_id, 
+        do_info = DeliveryOrder(delivery_order_id = do_id,
                                 shipping_instructions = shipping_inst, 
                                 time_created = current_time,
                                 total_price = grand_total, 
@@ -214,6 +260,7 @@ def deliveryorderdetails(request):
         for item in items:
             item_info = Item.objects.get(item_id = item['item_id'])
             do_item_info = DeliveryOrderItem(delivery_order_id = delivery_order, 
+                                             purchase_order_id = po,
                                              item_id = item_info, 
                                              quantity = item['quantity'], 
                                              unit_price = item['unit_price'],

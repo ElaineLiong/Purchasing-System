@@ -12,13 +12,14 @@ class DeliveryOrder(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     person_id = models.ForeignKey(Person)
     vendor_id = models.ForeignKey(Vendor)
-    purchase_order_id = models.OneToOneField(PurchaseOrder)
+    purchase_order_id = models.ForeignKey(PurchaseOrder)
     def __str__(self):
         return str(self.delivery_order_id)
 
 
 class DeliveryOrderItem(models.Model):
     delivery_order_id = models.ForeignKey(DeliveryOrder)
+    purchase_order_id = models.ForeignKey(PurchaseOrder)
     item_id = models.ForeignKey(Item)
     quantity = models.IntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
