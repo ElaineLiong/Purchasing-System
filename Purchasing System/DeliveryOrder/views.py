@@ -113,7 +113,18 @@ def deliveryorderconfirmation(request):
 
     user_id = request.user.id
     staff = Person.objects.get(user_id=user_id)
-    vendor_info = Vendor.objects.get(vendor_id = vendor_id)
+    try:
+        vendor_info = Vendor.objects.get(vendor_id = vendor_id)
+    except Vendor.DoesNotExist:
+        context = {
+            'error': 'Vendor ID: '+vendor_id+' is invalid',
+            'title': 'Delivery Order Form',
+            'delivery_order_id': do_id,
+            'purchase_order_id': po_id, 
+            'staff_id' : staff.person_id,
+            'vendor_id': vendor_id,
+        }
+        return render(request,'DeliveryOrder/deliveryorderform.html',context)
 
     doCount = DeliveryOrder.objects.filter(delivery_order_id = do_id)
     if doCount.count() == 0:
