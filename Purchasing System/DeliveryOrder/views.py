@@ -45,16 +45,54 @@ def fillingdeliveryorder(request):
     try: 
         po = PurchaseOrder.objects.get(purchase_order_id = pur_id)
         item_list = PurchaseOrderItem.objects.filter(purchase_order_id = pur_id)
-        context = {
+
+        listOfItem = list()
+
+        for perItem in item_list:
+            quantityCheckRequired = False
+            itemComplete = False
+            tempTotalQuantity = 0
+            tempOriginalItempQuantity = 0
+
+            for eachItem in DeliveryOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).filter(item_id = perItem.item_id):
+                tempTotalQuantity = tempTotalQuantity+eachItem.quantity
+                tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).get(item_id = perItem.item_id).quantity
+
+                if tempTotalQuantity+perItem.quantity>tempOriginalItempQuantity or tempTotalQuantity+perItem.quantity<=0:
+                    perItem.quantity = tempOriginalItempQuantity-tempTotalQuantity
+                    quantityCheckRequired = True
+                if tempTotalQuantity==tempOriginalItempQuantity:
+                    itemComplete = True
+            if itemComplete is False:
+                total= perItem.quantity * perItem.unit_price
+                item_table = {
+                    'item_name': perItem.item_id.item_name,
+                    'item_id': perItem.item_id,
+                    'quantity' : perItem.quantity,
+                    'unit_price': perItem.unit_price,
+                    'total_price': total
+                }
+                listOfItem.append(item_table)
+        if len(listOfItem) <= 0:
+            context = {
+                'error': 'Delivery Order Completed, No item Left to deliver',
                 'title': 'Delivery Order Form',
                 'delivery_order_id': 'DO' + str(do_id),
                 'purchase_order_id': pur_id, 
                 'staff_id' : staff.person_id,
                 'vendor_id': po.vendor_id.vendor_id,
-                'rows':item_list
             }
-
-        return render(request,'DeliveryOrder/deliveryorderform.html',context)
+            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+        else:
+            context = {
+                'title': 'Delivery Order Form',
+                'delivery_order_id': 'DO' + str(do_id),
+                'purchase_order_id': pur_id, 
+                'staff_id' : staff.person_id,
+                'vendor_id': po.vendor_id.vendor_id,
+                'rows':listOfItem
+            }
+            return render(request,'DeliveryOrder/deliveryorderform.html',context)
 
     except PurchaseOrder.DoesNotExist:
 
@@ -72,6 +110,7 @@ def deliveryorderconfirmation(request):
     shipping_inst = request.POST['shipping_inst']
     description = request.POST['description']
     
+
     user_id = request.user.id
     staff = Person.objects.get(user_id=user_id)
     vendor_info = Vendor.objects.get(vendor_id = vendor_id)
@@ -79,105 +118,191 @@ def deliveryorderconfirmation(request):
     doCount = DeliveryOrder.objects.filter(delivery_order_id = do_id)
     if doCount.count() == 0:
 
-        responses = request.read()
-        #print(responses)
-   
-        q= QueryDict(responses)
-    
-        items_id = q.getlist('item_id')
-        #print(items_id)
-        items_name = q.getlist('item_name')
-        #print(items_name)
-        items_quantity = q.getlist('quantity')
-        #print(items_quantity)
-        items_unit_price = q.getlist('unit_price')
-        #print(items_unit_price)
-        items_total_price = q.getlist('total_price')
-        #print(items_total_price)
+        try:
+            po = PurchaseOrder.objects.get(purchase_order_id = po_id)
+            
+            responses = request.read()
+            #print(responses)
+            q= QueryDict(responses)
+            items_id = q.getlist('item_id')
+            #print(items_id)
+            items_name = q.getlist('item_name')
+            #print(items_name)
+            items_quantity = q.getlist('quantity')
+            #print(items_quantity)
+            items_unit_price = q.getlist('unit_price')
+            #print(items_unit_price)
+            items_total_price = q.getlist('total_price')
+            #print(items_total_price)
  
-        items = list()
-        itemCheckList = list()
-        i = 0
-        items_length = len(items_id)
-        grand_total = Decimal(0)
+            items = list()
+            itemCheckList = list()
+            i = 0
+            items_length = len(items_id)
+            grand_total = Decimal(0)
 
-        quantityCheckRequired = False
-        while i < items_length:
-            itemComplete = False
+            while i < items_length:
+                itemComplete = False
+                quantityCheckRequired = False
 
-            tempTotalQuantity = 0
-            tempOriginalItempQuantity = 0
-            for eachItem in DeliveryOrderItem.objects.filter(purchase_order_id = po_id).filter(item_id = items_id[i]):
-                tempTotalQuantity = tempTotalQuantity+eachItem.quantity
-                print(tempTotalQuantity)
-                tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po_id).get(item_id = items_id[i]).quantity
-                print(PurchaseOrderItem.objects.filter(purchase_order_id = po_id).get(item_id = items_id[i]).purchase_order_id)
-                if tempTotalQuantity+Decimal(items_quantity[i])>tempOriginalItempQuantity:
-                    items_quantity[i] = tempOriginalItempQuantity-tempTotalQuantity
-                    quantityCheckRequired = True
-                if tempTotalQuantity==tempOriginalItempQuantity:
-                    itemComplete = True
+                tempTotalQuantity = 0
+                tempOriginalItempQuantity = 0
 
-            if quantityCheckRequired is True:
-                itemCheckList.append(items_id[i])
-            if itemComplete is False:
-                total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
-                item_table = {
-                    'item_name': items_name[i],
-                    'item_id': items_id[i],
-                    'quantity' : items_quantity[i],
-                    'unit_price': items_unit_price[i],
-                    'total_price': total
+                for eachItem in DeliveryOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).filter(item_id = items_id[i]):
+
+                    tempTotalQuantity = tempTotalQuantity+eachItem.quantity
+                    tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).get(item_id = items_id[i]).quantity
+
+                    if tempTotalQuantity+Decimal(items_quantity[i])>tempOriginalItempQuantity or tempTotalQuantity+Decimal(items_quantity[i])<=0:
+                        items_quantity[i] = tempOriginalItempQuantity-tempTotalQuantity
+                        quantityCheckRequired = True
+                    if tempTotalQuantity==tempOriginalItempQuantity:
+                        itemComplete = True
+
+
+                if quantityCheckRequired is True or Decimal(items_quantity[i])<=0 or Decimal(items_quantity[i])>PurchaseOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).get(item_id = items_id[i]).quantity:
+                    itemCheckList.append(items_id[i])
+
+                if itemComplete is False:
+                    total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
+                    item_table = {
+                        'item_name': items_name[i],
+                        'item_id': items_id[i],
+                        'quantity' : items_quantity[i],
+                        'unit_price': items_unit_price[i],
+                        'total_price': total
+                    }
+                    items.append(item_table)
+                    grand_total = grand_total + total
+
+                i = i + 1
+            #print(items)
+
+            if items_length <=0:
+
+                item_list = PurchaseOrderItem.objects.filter(purchase_order_id = po_id)
+
+                listOfItem = list()
+
+                for perItem in item_list:
+                    quantityCheckRequired = False
+                    itemComplete = False
+                    tempTotalQuantity = 0
+                    tempOriginalItempQuantity = 0
+
+                    for eachItem in DeliveryOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).filter(item_id = perItem.item_id):
+                        tempTotalQuantity = tempTotalQuantity+eachItem.quantity
+                        tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).get(item_id = perItem.item_id).quantity
+
+                        if tempTotalQuantity+perItem.quantity>tempOriginalItempQuantity or tempTotalQuantity+perItem.quantity<=0:
+                            perItem.quantity = tempOriginalItempQuantity-tempTotalQuantity
+                            quantityCheckRequired = True
+                        if tempTotalQuantity==tempOriginalItempQuantity:
+                            itemComplete = True
+                    if itemComplete is False:
+                        total= perItem.quantity * perItem.unit_price
+                        item_table = {
+                            'item_name': perItem.item_id.item_name,
+                            'item_id': perItem.item_id,
+                            'quantity' : perItem.quantity,
+                            'unit_price': perItem.unit_price,
+                            'total_price': total
+                        }
+                        listOfItem.append(item_table)
+
+                if len(listOfItem) <= 0:
+                    context = {
+                        'error': 'Delivery Order Completed, No item Left to deliver',
+                        'title': 'Delivery Order Form',
+                        'delivery_order_id': do_id,
+                        'purchase_order_id': po_id, 
+                        'staff_id' : staff.person_id,
+                        'vendor_id': vendor_id,
+                    }
+                    return render(request,'DeliveryOrder/deliveryorderform.html',context)
+                else:
+                    context = {
+                        'title': 'Delivery Order Form',
+                        'delivery_order_id': do_id,
+                        'purchase_order_id': po_id, 
+                        'staff_id' : staff.person_id,
+                        'vendor_id': vendor_id,
+                        'rows':listOfItem,
+                    }
+                    return render(request,'DeliveryOrder/deliveryorderform.html',context)
+                
+            else:
+                if len(items)<items_length:
+
+                    if len(items)<=0:
+                            context = {
+                                'error': 'All Items are already delivered for Purchase Order: '+po_id,
+                                'title': 'Delivery Order Form',
+                                'delivery_order_id': do_id,
+                                'purchase_order_id': po_id, 
+                                'staff_id' : staff.person_id,
+                                'vendor_id': vendor_id,
+                                'rows':items
+                            }
+                            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+                    else:
+                        if len(itemCheckList)>0:
+                            context = {
+                                'error': 'Quantity for '+",".join(itemCheckList)+' cannot be higher then the purchase order\'s item quantity or less then 0 ',
+                                'title': 'Delivery Order Form',
+                                'delivery_order_id': do_id,
+                                'purchase_order_id': po_id, 
+                                'staff_id' : staff.person_id,
+                                'vendor_id': vendor_id,
+                                'rows':items
+                            }
+
+                            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+                        
+                else:
+                    print(itemCheckList)
+
+                    if len(itemCheckList)>0:
+                        context = {
+                            'error': 'Quantity for '+",".join(itemCheckList)+' cannot be higher then the purchase order\'s item quantity  or less then 0',
+                            'title': 'Delivery Order Form',
+                            'delivery_order_id': do_id,
+                            'purchase_order_id': po_id, 
+                            'staff_id' : staff.person_id,
+                            'vendor_id': vendor_id,
+                            'rows':items
+                        }
+
+                        return render(request,'DeliveryOrder/deliveryorderform.html',context)
+                    else:
+                        context = {
+                                'title': 'Delivery Order Confirmation',
+                                'purchase_order_id' : po_id,
+                                'delivery_order_id' : do_id,
+                                'staff_id' : staff.person_id,
+                                'vendor_id' : vendor_id,
+                                'shipping_inst' : shipping_inst,
+                                'grand_total': grand_total,
+                                'rows' : items,
+                                'staff_info' : staff,
+                                'vendor_info' : vendor_info,
+                                'description' : description,
+                                'year':'2019/2020'
+                            }
+
+                        return render(request,'DeliveryOrder/deliveryorderconfirmation.html',context)
+
+        except PurchaseOrder.DoesNotExist:
+            context = { 
+                'error': 'The Purchase Order ID '+po_id+' is invalid !',
+                        'title': 'Delivery Order Form',
+                        'delivery_order_id': do_id,
+                        'purchase_order_id': po_id, 
+                        'staff_id' : staff.person_id,
+                        'vendor_id': vendor_id,
                 }
-                items.append(item_table)
-                grand_total = grand_total + total
-            i = i + 1
-        #print(items)
-
-        if quantityCheckRequired is True:
-            #item_list = PurchaseOrderItem.objects.filter(purchase_order_id = po_id)
-            context = {
-
-                'error': 'Quantity for '+",".join(itemCheckList)+' is/are higher then actual the purchase order\'s item',
-                'title': 'Delivery Order Form',
-                'delivery_order_id': do_id,
-                'purchase_order_id': po_id, 
-                'staff_id' : staff.person_id,
-                'vendor_id': vendor_id,
-                'rows':items
-            }
-
-            return render(request,'DeliveryOrder/deliveryorderform.html',context)
-        elif len(items)<=0:
-            context = {
-
-                'error': 'All Items are already delivered for Purchase Order: '+po_id,
-                'title': 'Delivery Order Form',
-                'delivery_order_id': do_id,
-                'purchase_order_id': po_id, 
-                'staff_id' : staff.person_id,
-                'vendor_id': vendor_id,
-                'rows':items
-            }
-
-            return render(request,'DeliveryOrder/deliveryorderform.html',context)
-        else:
-            context = {
-                    'title': 'Delivery Order Confirmation',
-                    'purchase_order_id' : po_id,
-                    'delivery_order_id' : do_id,
-                    'staff_id' : staff.person_id,
-                    'vendor_id' : vendor_id,
-                    'shipping_inst' : shipping_inst,
-                    'grand_total': grand_total,
-                    'rows' : items,
-                    'staff_info' : staff,
-                    'vendor_info' : vendor_info,
-                    'description' : description,
-                    'year':'2019/2020'
-                }
-
-            return render(request,'DeliveryOrder/deliveryorderconfirmation.html',context)
+        return render(request,'DeliveryOrder/deliveryorderform.html',context)
+        
     else:
         context = {
                 'error': 'The Delivery Order ID '+do_id+' already exist!',
