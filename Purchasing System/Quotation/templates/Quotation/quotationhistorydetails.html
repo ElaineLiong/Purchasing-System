@@ -50,7 +50,7 @@
                 {% for r in rows %}
                 <tr>
                     <td>{{r.item_id}}</td>
-                    <td>{{r.ref_id}}</td>
+                    <td>{{r.quotation_quotationitem.item_id.ref_id}}</td>
                     <td>{{r.item_id.item_name}}</td>
                     <td>{{r.quantity}}</td>
                     <td>{{r.unit_price}}</td>
