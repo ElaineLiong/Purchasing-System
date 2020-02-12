@@ -75,7 +75,7 @@ def fillingdeliveryorder(request):
                 listOfItem.append(item_table)
         if len(listOfItem) <= 0:
             context = {
-                'error': 'Delivery Order Completed, No item Left to deliver',
+                'error': 'Delivery Order Completed for '+pur_id,
                 'title': 'Delivery Order Form',
                 'delivery_order_id': 'DO' + str(do_id),
                 'purchase_order_id': pur_id, 
@@ -148,11 +148,23 @@ def deliveryorderconfirmation(request):
                 tempTotalQuantity = 0
                 tempOriginalItempQuantity = 0
 
+                try:
+                    tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).get(item_id = items_id[i]).quantity
+                except PurchaseOrderItem.DoesNotExist:
+                    context = {
+                        'error': 'Error in finding Item: '+items_id[i]+' for PO: '+po.purchase_order_id+'. Try Again',
+                        'title': 'Delivery Order Form',
+                        'delivery_order_id': do_id,
+                        'purchase_order_id': po_id, 
+                        'staff_id' : staff.person_id,
+                        'vendor_id': vendor_id,
+                    }
+                    return render(request,'DeliveryOrder/deliveryorderform.html',context)
+
                 for eachItem in DeliveryOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).filter(item_id = items_id[i]):
 
                     tempTotalQuantity = tempTotalQuantity+eachItem.quantity
-                    tempOriginalItempQuantity = PurchaseOrderItem.objects.filter(purchase_order_id = po.purchase_order_id).get(item_id = items_id[i]).quantity
-
+                    
                     if tempTotalQuantity+Decimal(items_quantity[i])>tempOriginalItempQuantity or tempTotalQuantity+Decimal(items_quantity[i])<=0:
                         items_quantity[i] = tempOriginalItempQuantity-tempTotalQuantity
                         quantityCheckRequired = True
@@ -212,7 +224,7 @@ def deliveryorderconfirmation(request):
 
                 if len(listOfItem) <= 0:
                     context = {
-                        'error': 'Delivery Order Completed, No item Left to deliver',
+                        'error': 'Delivery Order Completed for '+po_id,
                         'title': 'Delivery Order Form',
                         'delivery_order_id': do_id,
                         'purchase_order_id': po_id, 
@@ -301,7 +313,7 @@ def deliveryorderconfirmation(request):
                         'staff_id' : staff.person_id,
                         'vendor_id': vendor_id,
                 }
-        return render(request,'DeliveryOrder/deliveryorderform.html',context)
+            return render(request,'DeliveryOrder/deliveryorderform.html',context)
         
     else:
         context = {
