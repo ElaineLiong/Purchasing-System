@@ -20,7 +20,7 @@
         {% csrf_token %}
         <div class="row margintop">
             <div class="col">
-                <input type="text" class="form-control" name="purchase_order_id" value="{{purchase_order_id}}" placeholder="Purchase Order ID">
+                <input type="text" class="form-control" name="purchase_order_id" value="{{purchase_order_id}}" placeholder="Purchase Order ID" readonly>
             </div>
             <div class="col">
                 <textarea type="text" class="poform-control" name="quotation_id" placeholder="Quotation ID" readonly>{{quotation_id}}</textarea>
