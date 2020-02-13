@@ -24,11 +24,13 @@ import datetime
 
 @login_required
 def invoiceform(request):
+    context = {}
     context = {
             'title':'INVOICE AND PAYMENT FORM',
-            'year':'2019/2020'
+            'year':'2019/2020',
+            'user':request.user,
+            'itemOk': False
         }
-    context['user'] = request.user
 
     return render(request,'Invoice/invoiceform.html',context)
 
@@ -49,9 +51,10 @@ def fillinginvoice(request):
             if Invoice.objects.get(purchase_order_id = pur_id) is not None:
                  context = {
                          'error': 'An Invoice for '+pur_id+' already exists !',
-                         'title': 'Invoice Form'
+                         'title': 'Invoice Form',
+                         'itemOk': False
                     }
-            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+            return render(request,'Invoice/invoiceform.html',context)
         except:
             context = {
                 'title': 'Invoice Form',
@@ -59,19 +62,18 @@ def fillinginvoice(request):
                 'purchase_order_id': purchase_orders, 
                 'staff_id' : staff.person_id,
                 'vendor_id': purchase_orders.vendor_id.vendor_id,
-                'rows':item_list
+                'rows':item_list,
+                'itemOk': True
             }
 
         responsesItems = render(request,'Invoice/invoiceform.html',context).content
         return render(request,'Invoice/invoiceform.html',context)
 
-
-        
-
     except PurchaseOrder.DoesNotExist:
 
         context = { 'error': 'The purchase order id is invalid !',
-                    'title': 'Invoice Form'
+                    'title': 'Invoice Form',
+                    'itemOk': False
             }
         return render(request,'Invoice/invoiceform.html',context)
 
@@ -123,21 +125,28 @@ def invoiceconfirmation(request):
         grand_total = grand_total + total
     print(items)
        
+    if len(items) <= 0:
+        context = {
+                'error': 'Items cannot be empty!!',
+                'title': 'Invoice Form',
+                'itemOk': False
+            }
 
-    context = {
-            'title': 'Invoice Confirmation',
-            'purchase_order_id' :pur_id,
-            'invoice_id' : inv_id,
-            'staff_id' : staff_id,
-            'vendor_id' : vendor_id,
-            'grand_total': grand_total,
-            'rows' : items,
-            'staff_info' : staff_info,
-            'vendor_info' : vendor_info,
-            'description' : description
-        }
+        responsesItems = render(request,'Invoice/invoiceform.html',context).content
+        return render(request,'Invoice/invoiceform.html',context)
+    else:
+        context = {
+                'title': 'Invoice Confirmation',
+                'purchase_order_id' :pur_id,
+                'invoice_id' : inv_id,
+                'staff_id' : staff_id,
+                'vendor_id' : vendor_id,
+                'grand_total': grand_total,
+                'rows' : items,
+                'itemOk': True
+            }
     
-    return render(request,'Invoice/invoiceconfirmation.html',context)
+        return render(request,'Invoice/invoiceconfirmation.html',context)
 
  
 def invoicedetails(request):

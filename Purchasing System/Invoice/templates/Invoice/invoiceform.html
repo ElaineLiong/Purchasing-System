@@ -21,16 +21,16 @@
         <div class="row margintop">
           
             <div class="col">
-                <input type="text" class="poform-control" name="invoice_id" value="{{invoice_id}}" placeholder="Invoice ID">
+                <input type="text" class="poform-control" name="invoice_id" value="{{invoice_id}}" placeholder="Invoice ID" readonly>
             </div>
             <div class="col">
-              <textarea type="text" class="poform-control" name="purchase_order_id" placeholder="Purchase Order ID">{{purchase_order_id}}</textarea>
+              <textarea  type="text" class="poform-control" name="purchase_order_id" placeholder="Purchase Order ID" readonly>{{purchase_order_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID">{{staff_id}}</textarea>
+                <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID" readonly>{{staff_id}}</textarea>
             </div>
             <div class="col">
-                <textarea type="text" class="poform-control" name="vendor_id" placeholder="Vendor ID">{{vendor_id}}</textarea>
+                <textarea type="text" class="poform-control" name="vendor_id" placeholder="Vendor ID" readonly>{{vendor_id}}</textarea>
             </div>
  
            
@@ -38,7 +38,7 @@
 
         <div class="row margintop">
             <div class="col">
-                <textarea type="text" class="form-control" name="description" id="description" placeholder="Invoice Description (If applicable)"></textarea>
+                <textarea type="text" class="form-control" name="description" id="description" placeholder="Invoice Description (If applicable)" {% if not itemOk %}readonly{% endif %} ></textarea>
             </div>
         </div>
 
@@ -65,7 +65,7 @@
             </tbody>
         </table>
         <div class="margintop">
-            <button type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
+            <button type="submit" class="btn btn-success btn-square buttonsize" {% if not itemOk %}disabled{% endif %}>Submit</button>
              
             <a class="btn btn-danger btn-square buttonsize" href="/menu">Cancel</a>
         </div>
