@@ -4,28 +4,24 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpRequest, HttpResponseRedirect
 from django.template import RequestContext
 from django.db import models
 from datetime import datetime
-
-#database
 from app.models import Person,Item,Vendor
 from Quotation.models import Quotation, QuotationItem
 from PurchaseOrder.models import PurchaseOrder,PurchaseOrderItem
 from prettytable import PrettyTable
-
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.request import QueryDict
 from decimal import Decimal
 import random
-import datetime 
-from django.contrib.auth.models import User
+import datetime
 from django.core.mail import send_mail
 from django.conf import settings
-
 
 @login_required
 def purchaseorderform(request):
@@ -33,6 +29,7 @@ def purchaseorderform(request):
             'title':'Purchase Order Form',
             'year':'2019/2020'
         }
+    context['user'] = request.user
 
     return render(request,'PurchaseOrder/purchaseorderform.html',context)
 
@@ -46,10 +43,11 @@ def fillingpurchaseorder(request):
 
     purchaseorders = PurchaseOrder.objects.all()
     numberpo = len(purchaseorders)
-    po_id = int(po_id) + int(numberpo) 
-
-    staff_id = request.user
+    po_id = int(po_id) + int(numberpo)
+    
+    staff_id = request.user.id
     staff = Person.objects.get(user_id = staff_id)
+
 
     try: 
 
@@ -90,7 +88,7 @@ def purchaseorderconfirmation(request):
     context = {}
     po_id = request.POST['purchase_order_id']
     quotation_id = request.POST['quotation_id']
-    staff_id = request.user.id 
+    staff_id = request.user.id
     staff = Person.objects.get(user_id = staff_id)
     vendor_id = request.POST['vendor_id']
     shipping_inst = request.POST['shipping_inst']
@@ -163,7 +161,7 @@ def purchaseorderdetails(request):
     vendor_id = request.POST['vendor_id']
     description = request.POST['description']
 
-    staff_id = request.user.id 
+    staff_id = request.user.id
     staff = Person.objects.get(user_id = staff_id)
     quotation = Quotation.objects.get(quotation_id = quotation_id)
     vendor_info = Vendor.objects.get(vendor_id = vendor_id)
@@ -209,6 +207,7 @@ def purchaseorderdetails(request):
     # push the Purchase Order data to the database 
     current_time = datetime.datetime.now() 
     print(current_time)
+    
     po_info = PurchaseOrder(purchase_order_id = po_id, 
                             shipping_instructions = shipping_inst, 
                             time_created = current_time,
@@ -217,18 +216,28 @@ def purchaseorderdetails(request):
                             description = description,
                             vendor_id = vendor_info, 
                             quotation_id = quotation)
+ 
     po_info.save()
 
     # push the Purchase Order item data to the database
     purchase_order = PurchaseOrder.objects.get(purchase_order_id = po_id)
     for item in items:
-        item_info = Item.objects.get(item_id = item['item_id'])
+        item_info = Item.objects.get(item_id = item['item_id'])     
+
         po_item_info = PurchaseOrderItem(purchase_order_id = purchase_order, 
-                                         item_id = item_info, 
-                                         quantity = item['quantity'], 
-                                         unit_price = item['unit_price'],
-                                         total_price = item['total_price'])
-        po_item_info.save()
+                                            item_id = item_info, 
+                                            quantity = item['quantity'], 
+                                            unit_price = item['unit_price'],
+                                            total_price = item['total_price'])
+        
+        ukeys = request.POST.getlist('quantity[]')
+        if (items_quantity <= ukeys):
+            po_item_info.save()
+        else:
+            po_info.delete()
+            raise forms.ValidationError('Item quantity exceeds maximum')
+
+
 
 
     #sending email to vendor
@@ -244,7 +253,7 @@ def purchaseorderdetails(request):
 
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [vendor_info.vendor_email,]
-    send_mail( subject, message, email_from, recipient_list )
+    send_mail( subject, message, email_from, recipient_list, fail_silently=True )
 
     # info pass to html
     context = {
@@ -299,3 +308,4 @@ def purchaseorderhistory(request):
         }
 
     return render(request,'PurchaseOrder/purchaseorderhistory.html',context)
+
