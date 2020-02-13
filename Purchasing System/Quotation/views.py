@@ -27,9 +27,10 @@ from PurchaseOrder.models import PurchaseOrder,PurchaseOrderItem
 def quotationform(request):
     context = {
             'title':'Quotation Form',
-            'year':'2019/2020'
+            'year':'2019/2020',
+            'user' : request.user,
+            'checkButton' : False
         }
-    context['user'] = request.user
 
     return render(request,'Quotation/quotationform.html',context)
 
@@ -47,7 +48,8 @@ def fillingquotation(request):
         quotation = Quotation.objects.get(request_for_quotation_id = re_of_quo_id)
         print(quotation)
         context = {'error': 'Quotation for this request already exists! The number is : ' + quotation.quotation_id,
-                   'title': 'Quotation Form'
+                   'title': 'Quotation Form',
+                   'checkButton' : False
            }
         return render(request,'Quotation/quotationform.html',context) 
 
@@ -61,7 +63,8 @@ def fillingquotation(request):
                     'request_for_quotation_id': re_of_quo_id, 
                     'staff_id' : staff.person_id,
                     'vendor_id': request_for_quotations.vendor_id.vendor_id,
-                    'rows':item_list
+                    'rows':item_list,
+                    'checkButton' : True
                 }
       
             return render(request,'Quotation/quotationform.html',context)
@@ -69,7 +72,8 @@ def fillingquotation(request):
         except RequestForQuotation.DoesNotExist:
 
             context = { 'error': 'The request for quotation id is invalid !',
-                        'title': 'Quotation Form'
+                        'title': 'Quotation Form',
+                    'checkButton' : False
                 }
             return render(request,'Quotation/quotationform.html',context)
 

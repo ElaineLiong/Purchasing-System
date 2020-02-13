@@ -35,7 +35,7 @@
 
         <div class="row margintop">
             <div class="col">
-                <textarea type="text" class="form-control" name="description" id="description" placeholder="Quotation Description (If applicable)"></textarea>
+                <textarea type="text" class="form-control" name="description" id="description" placeholder="Quotation Description (If applicable)" {% if not checkButton %}readonly{% endif %}></textarea>
             </div>
         </div>
 
@@ -64,7 +64,7 @@
             </tbody>
         </table>
         <div class="margintop">
-            <button type="submit" id="submit_button" class="btn btn-success btn-square buttonsize" >Submit</button>
+            <button type="submit" id="submit_button" class="btn btn-success btn-square buttonsize" {% if not checkButton %}disabled{% endif %}>Submit</button>
             <a class="btn btn-danger btn-square buttonsize" href="/menu">Cancel</a>
         </div>
 
