@@ -45,7 +45,15 @@ def fillinginvoice(request):
     try: 
         purchase_orders = PurchaseOrder.objects.get(purchase_order_id = pur_id)
         item_list = PurchaseOrderItem.objects.filter(purchase_order_id = pur_id)
-        context = {
+        try:
+            if Invoice.objects.get(purchase_order_id = pur_id) is not None:
+                 context = {
+                         'error': 'An Invoice for '+pur_id+' already exists !',
+                         'title': 'Invoice Form'
+                    }
+            return render(request,'DeliveryOrder/deliveryorderform.html',context)
+        except:
+            context = {
                 'title': 'Invoice Form',
                 'invoice_id': 'INV' + str(inv_id),
                 'purchase_order_id': purchase_orders, 
@@ -56,6 +64,9 @@ def fillinginvoice(request):
 
         responsesItems = render(request,'Invoice/invoiceform.html',context).content
         return render(request,'Invoice/invoiceform.html',context)
+
+
+        
 
     except PurchaseOrder.DoesNotExist:
 
