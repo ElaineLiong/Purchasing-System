@@ -29,13 +29,13 @@
                 <textarea type="text" class="poform-control" name="staff_id" placeholder="Staff ID" readonly>{{staff_id}}</textarea>
             </div>
             <div class="col">
-                <input type="text" class="form-control" name="vendor_id" placeholder="Vendor ID">
+                <input type="text" class="form-control" name="vendor_id" placeholder="Vendor ID" {% if not checkButton %}readonly{% endif %}>
             </div>
         </div>
 
         <div class="row margintop">
             <div class="col">
-                <textarea type="text" class="form-control" name="description" id="description" placeholder="Purchase Requisition Description (If applicable)"></textarea>
+                <textarea type="text" class="form-control" name="description" id="description" placeholder="Purchase Requisition Description (If applicable)" {% if not checkButton %}readonly{% endif %}>{{description}}</textarea>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
             </tbody>
         </table>
         <div class="margintop">
-            <button type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
+            <button type="submit" class="btn btn-success btn-square buttonsize" {% if not checkButton %}disabled{% endif %}>Submit</button>
             <a class="btn btn-danger btn-square buttonsize" href="/menu">Cancel</a>
         </div>
     </form>
