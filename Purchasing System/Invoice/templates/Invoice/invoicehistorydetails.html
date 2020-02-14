@@ -30,10 +30,6 @@
         </div>
         <div class="row margintop">
             <div class="col">
-                <label class="labelpodetails">Shipping Instructions</label>
-               <textarea class="form-control potextarea" name="shipping_inst" id="shipping_inst" placeholder="Shipping Instructions (If applicable)" readonly >{{shipping_inst}}</textarea>
-            </div>
-            <div class="col">
                 <label class="labelpodetails">Description</label>
                 <textarea class="form-control potextarea" name="description" id="description" placeholder="Purchase Order Description (If applicable)" readonly>{{description}}</textarea>
             </div>
@@ -53,9 +49,9 @@
               {% for r in rows %}
             <tr>
                  <td>{{r.item_id}}</td>
-                 <td>{{r.item_name}}</td>
-                 <td>{{r.quantity}}</td>
                  <td>{{r.unit_price}}</td>
+                 <td>{{r.item_id.item_name}}</td>
+                 <td>{{r.quantity}}</td>
                  <td>{{r.total_price}}</td>
             </tr>
               {% endfor %}
