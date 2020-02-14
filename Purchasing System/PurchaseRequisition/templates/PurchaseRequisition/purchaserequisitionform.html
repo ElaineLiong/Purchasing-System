@@ -62,8 +62,8 @@
                         <td> <input type="text" name='item_id' placeholder='Item id'  class="form-control" required/> </td>
 						<td><input type="text" name="item_name"  placeholder='Item name' class="form-control" required></td>
 						<td><input type="text" name='description' placeholder='Description' class="form-control" required/></td>
-                        <td><input ng-model="quantity" type="text" name='quantity' placeholder='Quantity'  class="form-control" required numbers-only/></td>
-                        <td><input ng-model="unit_price" type="text" name='unit_price' placeholder='Price Per Unit'  class="form-control" required numbernalphabet-only/></td>
+                        <td><input type="number" name='quantity' placeholder='Quantity'  class="form-control" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"/></td>
+                        <td><input type="number" step="any" name='unit_price' placeholder='Price Per Unit'  class="form-control" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  /></td>
 					</tr> 
                     <tr id='addr1'></tr>
                
