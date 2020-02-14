@@ -1,0 +1,15 @@
+Test_pygettext
+assert_python_ok
+temp_dir
+os
+__spec__
+__file__
+unittest
+__name__
+skip_if_missing
+dedent
+toolsdir
+__builtins__
+__cached__
+temp_cwd
+__package__

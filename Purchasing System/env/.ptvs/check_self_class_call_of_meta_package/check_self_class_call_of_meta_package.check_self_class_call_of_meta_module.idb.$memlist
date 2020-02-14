@@ -1,0 +1,10 @@
+isfunction
+check_self_class_call_of_meta
+wraps
+__spec__
+__file__
+__name__
+__all__
+__builtins__
+__cached__
+__package__

@@ -14,8 +14,10 @@ class Quotation(models.Model):
     person_id = models.ForeignKey(Person, on_delete = models.CASCADE)
     vendor_id = models.ForeignKey(Vendor, on_delete = models.CASCADE)
     request_for_quotation_id = models.OneToOneField(RequestForQuotation, on_delete = models.CASCADE)
+  
     def __str__(self):
         return str(self.quotation_id)
+
 
 class QuotationItem(models.Model):
     quotation_id = models.ForeignKey(Quotation, on_delete = models.CASCADE)
