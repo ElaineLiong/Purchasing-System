@@ -31,9 +31,11 @@ from django.http import HttpResponse
 def requestforquotationform(request):
     context = {
             'title':'Request For Quotation Form',
-            'year':'2019/2020'
+            'year':'2019/2020',
+            'user' : request.user,
+            'checkButton' : False
         }
-    context['user'] = request.user
+    
 
     return render(request,'RequestForQuotation/requestforquotationform.html',context)
 
@@ -56,7 +58,8 @@ def fillingrequestforquotation(request):
                 'request_for_quotation_id': 'RFQ' + str(rfq_id),
                 'purchase_requisition_id': pr_id, 
                 'staff_id' : staff_info.person_id,
-                'rows':item_list
+                'rows':item_list,
+                'checkButton' : True
             }
 
         return render(request,'RequestForQuotation/requestforquotationform.html',context)
@@ -64,7 +67,8 @@ def fillingrequestforquotation(request):
     except PurchaseRequisition.DoesNotExist:
 
         context = { 'error': 'The Purchase Requisition id is invalid !',
-                    'title': 'Request For Quotation Form'
+                    'title': 'Request For Quotation Form',
+                    'checkButton' : False
             }
         return render(request,'RequestForQuotation/requestforquotationform.html',context)
 
@@ -128,7 +132,8 @@ def requestforquotationconfirmation(request):
                 'rows' : items,
                 'staff_info' : staff_info,
                 'vendor_info' : vendor_info,
-                'description' : description
+                'description' : description,
+                'checkButton' : True
             }
 
         return render(request,'RequestForQuotation/requestforquotationconfirmation.html',context)
@@ -141,10 +146,12 @@ def requestforquotationconfirmation(request):
                     'purchase_requisition_id' : purchase_requisition_id,
                     'request_for_quotation_id' : rfq_id,
                     'staff_id' : staff_info.person_id,
+                    'vendor_id' : vendor_id,
                     'grand_total': grand_total,
                     'rows' : items,
                     'staff_info' : staff_info,
-                    'description' : description
+                    'description' : description,
+                    'checkButton' : True
             }
         return render(request,'RequestForQuotation/requestforquotationform.html',context)
 
