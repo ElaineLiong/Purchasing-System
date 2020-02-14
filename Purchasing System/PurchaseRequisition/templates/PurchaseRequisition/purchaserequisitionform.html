@@ -1,14 +1,17 @@
 ﻿{% extends "app/layout.html" %}
 
 {% block content %}
-
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-resource.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-sanitize.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script>
     $(document).ready(function () {
 
      
       var i=1;
      $("#add_row").click(function(){
-      $('#addr'+i).html("<td>"+ (i+1) +"</td><td><input name='item_id' type='item_id' placeholder='Item ID' class='form-control input-md'   /> </td><td><input  name='item_name' type='text' placeholder='Item Name'  class='form-control input-md'></td><td><input  name='description' type='text' placeholder='Description'  class='form-control input-md' ></td><td><input name='quantity' type='text' placeholder='Quantity' class='form-control input-md'  /> </td><td><input name='unit_price' type='text' placeholder='Price Per Unit' class='form-control input-md'  /> </td>");
+      $('#addr'+i).html("<td>"+ (i+1) +"</td><td><input name='item_id' type='item_id' placeholder='Item ID' class='form-control input-md' required/> </td><td><input  name='item_name' type='text' placeholder='Item Name'  class='form-control input-md'  required></td><td><input  name='description' type='text' placeholder='Description'  class='form-control input-md' required></td><td><input name='quantity' ng-model='quantity' type='text' placeholder='Quantity' class='form-control input-md' required numbers-only/> </td><td><input name='unit_price' ng-model='unit_price' type='text' placeholder='Price Per Unit' class='form-control input-md'  required numbernalphabet-only/> </td>");
 
       $('#tab_logic').append('<tr id="addr'+(i+1)+'"></tr>');
       i++; 
@@ -22,9 +25,10 @@
 
 });
 </script>
-<div class="formpurchaseorder margintop" >
 
-    <form class="purchaseordersubmission" action="purchaserequisitionconfirmation" method="POST">
+<div  class="formpurchaseorder margintop"  ng-app="myApp" ng-controller="myCtrl" align="center" ng-cloak>
+
+    <form name="myForm" class="purchaseordersubmission" action="purchaserequisitionconfirmation" method="POST">
       {% csrf_token %}
         <div class="row margintop">
             <div class="col">
@@ -55,11 +59,11 @@
 				<tbody name="item_rows">
 					<tr id='addr0'>
 						<td>1</td>
-                        <td> <input type="text" name='item_id' placeholder='Item id'  class="form-control" /> </td>
-						<td><input type="text" name="item_name"  placeholder='Item name' class="form-control" ></td>
-						<td><input type="text" name='description' placeholder='Description' class="form-control" /></td>
-                        <td><input type="text" name='quantity' placeholder='Quantity'  class="form-control" /></td>
-                        <td><input type="text" name='unit_price' placeholder='Price Per Unit'  class="form-control"  /></td>
+                        <td> <input type="text" name='item_id' placeholder='Item id'  class="form-control" required/> </td>
+						<td><input type="text" name="item_name"  placeholder='Item name' class="form-control" required></td>
+						<td><input type="text" name='description' placeholder='Description' class="form-control" required/></td>
+                        <td><input type="number" name='quantity' placeholder='Quantity'  class="form-control" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"/></td>
+                        <td><input type="number" step="any" name='unit_price' placeholder='Price Per Unit'  class="form-control" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  /></td>
 					</tr> 
                     <tr id='addr1'></tr>
                
@@ -67,10 +71,9 @@
 			</table>
 		</div>
         </div>
-	    <a id="add_row" class="btn btn-default pull-left">Add Item</a><a id='delete_row' class="pull-right btn btn-default">Delete Item</a>
-       
+        <input id="add_row" type="button" class="btn btn-default pull-left" value="Add Item"><input id="delete_row" type="button" class="btn btn-default pull-right" value="Delete Item">
         <div class="margintop">
-            <button type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
+            <button ng-disabled="myForm.$invalid" type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
             <a class="btn btn-danger btn-square buttonsize" href="/menu">Cancel</a>
         </div>
 
@@ -78,5 +81,12 @@
     </form>
 
 </div>
+<script>
+    var app = angular.module("myApp", []);
+       app.controller("myCtrl", function($scope, $http) {
+   
+   
  
+    });
+   </script>
 {% endblock %}
