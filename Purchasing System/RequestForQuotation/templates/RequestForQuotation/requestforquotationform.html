@@ -56,7 +56,7 @@
                     <td><input type="text" class="form-control" name="item_name" value="{{r.item_id.item_name}}" readonly></td>
                     <td><input type="text" class="form-control" name="quantity" value="{{r.quantity}}"placeholder="Quantity Item"></td>
                     <td><input type="text" class="form-control" name="unit_price" value="{{r.unit_price}}" readonly></td>
-                    <td><input type="text" class="form-control" name="total_price" value="{{r.total_price}}" readonly></td>
+                    <td><input type="text" class="form-control" name="total_price" value="{{r.pr_id.total_price}}" readonly></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -65,10 +65,7 @@
             <button type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
             <a class="btn btn-danger btn-square buttonsize" href="/menu">Cancel</a>
         </div>
-
-
     </form>
-
 </div>
 
 
