@@ -4,7 +4,7 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <Name>Purchasing System</Name>
     <RootNamespace>Purchasing System</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|env7</InterpreterId>
+    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
     <WebBrowserPort>8080</WebBrowserPort>
     <TestFramework>Pytest</TestFramework>
   </PropertyGroup>
