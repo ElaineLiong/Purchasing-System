@@ -36,7 +36,7 @@ def purchaseorderform(request):
 
 @login_required
 def fillingpurchaseorder(request):
-
+    
     context = {}
     quo_id = request.GET['quo_id']
     po_id = 1001
@@ -72,7 +72,7 @@ def fillingpurchaseorder(request):
                     'vendor_id': quotations.vendor_id.vendor_id,
                     'rows':item_list
                 }
-
+         
             responsesItems = render(request,'PurchaseOrder/purchaseorderform.html',context).content
             return render(request,'PurchaseOrder/purchaseorderform.html',context)
 
@@ -82,6 +82,7 @@ def fillingpurchaseorder(request):
                         'title': 'Purchase Order Form'
                 }
             return render(request,'PurchaseOrder/purchaseorderform.html',context)
+    
 
 def purchaseorderconfirmation(request):
 
@@ -118,6 +119,8 @@ def purchaseorderconfirmation(request):
     i = 0
     items_length = len(items_id)
     grand_total = Decimal(0)
+
+  
 
     while i < items_length:
         total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
@@ -156,6 +159,7 @@ def purchaseorderdetails(request):
 
     po_id = request.POST['purchase_order_id']
     quotation_id = request.POST['quotation_id']
+    quo_id = quotation_id
     shipping_inst = request.POST['shipping_inst']
 
     vendor_id = request.POST['vendor_id']
@@ -182,12 +186,13 @@ def purchaseorderdetails(request):
     items_total_price = q.getlist('total_price')
     print(items_total_price)
 
-
     items = list()
 
     i = 0
     items_length = len(items_id)
     grand_total = Decimal(0)
+
+
 
     while i < items_length:
         total= Decimal(items_quantity[i]) * Decimal(items_unit_price[i])
@@ -221,7 +226,12 @@ def purchaseorderdetails(request):
 
     # push the Purchase Order item data to the database
     purchase_order = PurchaseOrder.objects.get(purchase_order_id = po_id)
+    quotations = Quotation.objects.get(quotation_id = quo_id)
+    item_list = list(QuotationItem.objects.all().values_list('quantity'))
+    item_quantity_initial = [i[0] for i in item_list]
+    counter = 0
     for item in items:
+        
         item_info = Item.objects.get(item_id = item['item_id'])     
 
         po_item_info = PurchaseOrderItem(purchase_order_id = purchase_order, 
@@ -230,16 +240,15 @@ def purchaseorderdetails(request):
                                             unit_price = item['unit_price'],
                                             total_price = item['total_price'])
         
-        ukeys = request.POST.getlist('quantity[]')
-        if (items_quantity <= ukeys):
+
+        if (int(items_quantity[counter])<= int(item_quantity_initial[counter])):
             po_item_info.save()
-        else:
+        elif(int(items_quantity[counter]) > int(item_quantity_initial[counter])):
             po_info.delete()
             raise forms.ValidationError('Item quantity exceeds maximum')
+        counter = counter + 1
 
-
-
-
+   
     #sending email to vendor
     x = PrettyTable()
 
