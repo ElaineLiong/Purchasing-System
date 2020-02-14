@@ -1,9 +1,7 @@
 ﻿{% extends "app/layout.html" %}
 
 {% block content %}
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-resource.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-sanitize.js"></script>
+
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -26,7 +24,7 @@
 });
 </script>
 
-<div  class="formpurchaseorder margintop"  ng-app="myApp" ng-controller="myCtrl" align="center" ng-cloak>
+<div  class="formpurchaseorder margintop" >
 
     <form name="myForm" class="purchaseordersubmission" action="purchaserequisitionconfirmation" method="POST">
       {% csrf_token %}
@@ -73,7 +71,7 @@
         </div>
         <input id="add_row" type="button" class="btn btn-default pull-left" value="Add Item"><input id="delete_row" type="button" class="btn btn-default pull-right" value="Delete Item">
         <div class="margintop">
-            <button ng-disabled="myForm.$invalid" type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
+            <button type="submit" class="btn btn-success btn-square buttonsize">Submit</button>
             <a class="btn btn-danger btn-square buttonsize" href="/menu">Cancel</a>
         </div>
 
@@ -81,12 +79,5 @@
     </form>
 
 </div>
-<script>
-    var app = angular.module("myApp", []);
-       app.controller("myCtrl", function($scope, $http) {
-   
-   
- 
-    });
-   </script>
+
 {% endblock %}
